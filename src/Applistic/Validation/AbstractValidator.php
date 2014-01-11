@@ -22,7 +22,39 @@ abstract class AbstractValidator implements ValidatorInterface
      */
     protected $nextValidator;
 
+    /**
+     * All the values.
+     *
+     * @var array
+     */
+    protected $values;
+
 // ===== ACCESSORS =============================================================
+
+    /**
+     * Sets the values.
+     *
+     * @param array $values
+     */
+    public function setValues(array &$values)
+    {
+        $this->values =& $values;
+
+        if (!is_null($this->nextValidator)) {
+            $this->nextValidator->setValues($values);
+        }
+    }
+
+    /**
+     * Return the values.
+     *
+     * @return array
+     */
+    public function values()
+    {
+        return $this->values;
+    }
+
 // ===== CONSTRUCTOR ===========================================================
 // ===== PUBLIC METHODS ========================================================
 
@@ -56,7 +88,7 @@ abstract class AbstractValidator implements ValidatorInterface
         if ($this->hasRule($ruleName)) {
 
             $methodName = $this->validationMethod($ruleName);
-            return static::$methodName($value, $arguments);
+            return $this->$methodName($value, $arguments);
 
         } elseif (!is_null($this->nextValidator)) {
 

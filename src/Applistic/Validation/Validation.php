@@ -43,11 +43,78 @@ class Validation
      */
     protected $errors;
 
+    /**
+     * Defines if $values are kept as references.
+     *
+     * @var boolean
+     */
+    protected $useReferences;
+
 // ===== ACCESSORS =============================================================
+
+    /**
+     * Sets the values.
+     *
+     * @param array $values
+     */
+    public function setValues(array &$values)
+    {
+        if ($this->useReferences) {
+            $this->values =& $values;
+        } else {
+            $this->values = $values;
+        }
+    }
+
+    /**
+     * Returns the values.
+     *
+     * @return null|array
+     */
+    public function values()
+    {
+        return $this->values;
+    }
+
+    /**
+     * Returns the errors.
+     *
+     * @return null|array
+     */
+    public function errors()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * Returns the errors corresponding to $valueKey.
+     *
+     * @param  string $valueKey The value's key.
+     * @return null|array
+     */
+    public function valueErrors($valueKey)
+    {
+        if (!is_string($valueKey)) {
+            $message = "\$valueKey must be a string.";
+            throw new \InvalidArgumentException($message);
+        }
+
+        if (is_array($this->errors) && array_key_exists($valueKey, $this->errors)) {
+            return $this->errors[$valueKey];
+        } else {
+            return null;
+        }
+    }
+
 // ===== CONSTRUCTOR ===========================================================
 
-    public function __construct()
+    public function __construct($useReferences = true)
     {
+        if (!is_bool($useReferences)) {
+            $useReferences = false;
+        }
+
+        $this->useReferences = $useReferences;
         $this->validator = new BaseValidator();
     }
 
@@ -62,7 +129,8 @@ class Validation
      */
     public function validate(array &$values, array $rules)
     {
-        $this->values =& $values;
+        $this->setValues($values);
+        $this->validator->setValues($values);
         $this->errors = array();
 
         foreach ($rules as $valueKey => $valueRules) {
@@ -112,7 +180,12 @@ class Validation
 
         if ($validator instanceof ValidatorInterface) {
 
+            if (is_array($this->values)) {
+                $validator->setValues($this->values);
+            }
+
             $this->validator->setLastValidator($validator);
+
             return $this;
 
         } else {
@@ -121,26 +194,6 @@ class Validation
             $message .= "Applistic\Validation\ValidatorInterface.";
             throw new \InvalidArgumentException($message);
 
-        }
-    }
-
-    /**
-     * Returns the errors corresponding to $valueKey.
-     *
-     * @param  string $valueKey The value's key.
-     * @return null|array
-     */
-    public function errors($valueKey)
-    {
-        if (!is_string($valueKey)) {
-            $message = "\$valueKey must be a string.";
-            throw new \InvalidArgumentException($message);
-        }
-
-        if (is_array($this->errors) && array_key_exists($valueKey, $this->errors)) {
-            return $this->errors[$valueKey];
-        } else {
-            return null;
         }
     }
 
