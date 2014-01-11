@@ -11,6 +11,12 @@ namespace Applistic\Validation;
 class BaseValidator extends AbstractValidator
 {
 // ===== CONSTANTS =============================================================
+
+    const NUMERIC_PATTERN = "|^[\-]{0,1}[0-9]+[\.]{0,1}[0-9]+$|";
+    const INTEGER_PATTERN = "|^[\-]{0,1}[0-9]+$|";
+
+    const MSG_CANNOT_APPLY_TO = "The `%s` rule cannot be applied to: %s";
+
 // ===== STATIC PROPERTIES =====================================================
 // ===== STATIC FUNCTIONS ======================================================
 
@@ -35,7 +41,7 @@ class BaseValidator extends AbstractValidator
     {
         if (is_int($value)) {
             return true;
-        } elseif (is_string($value) && preg_match('|^[0-9\-]+$|', $value)) {
+        } elseif (is_string($value) && preg_match(self::INTEGER_PATTERN, $value)) {
             return true;
         } else {
             return false;
@@ -48,7 +54,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isStrictInteger($value)
+    public static function isRealInteger($value)
     {
         return is_int($value);
     }
@@ -64,7 +70,7 @@ class BaseValidator extends AbstractValidator
         if (is_numeric($value)) {
             return true;
         } elseif (is_string($value)) {
-            return preg_match('|^[\-]{0,1}[0-9]+[\.]{0,1}[0-9]+$|', $value);
+            return preg_match(self::NUMERIC_PATTERN, $value);
         } else {
             return false;
         }
@@ -76,7 +82,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isStrictNumeric($value)
+    public static function isRealNumeric($value)
     {
         return is_numeric($value);
     }
@@ -106,13 +112,13 @@ class BaseValidator extends AbstractValidator
      */
     public static function isMin($value, $argument)
     {
-        if (is_numeric($value)) {
-
-            return ($value >= (double)$argument);
-
-        } elseif (is_string($value)) {
+        if (is_string($value)) {
 
             return (mb_strlen($value) >= (double)$argument);
+
+        } elseif (is_numeric($value)) {
+
+            return ($value >= (double)$argument);
 
         } elseif (is_array($value)) {
 
@@ -120,7 +126,7 @@ class BaseValidator extends AbstractValidator
 
         } else {
 
-            $message = "The min rule cannot be applied to: ".var_export($value, true);
+            $message = sprintf(self::MSG_CANNOT_APPLY_TO, "min", var_export($value, true));
             throw new \InvalidArgumentException($message);
 
         }
@@ -140,13 +146,13 @@ class BaseValidator extends AbstractValidator
      */
     public static function isMax($value, $argument)
     {
-        if (is_numeric($value)) {
-
-            return ($value <= (double)$argument);
-
-        } elseif (is_string($value)) {
+        if (is_string($value)) {
 
             return (mb_strlen($value) <= (double)$argument);
+
+        } elseif (is_numeric($value)) {
+
+            return ($value <= (double)$argument);
 
         } elseif (is_array($value)) {
 
@@ -154,9 +160,39 @@ class BaseValidator extends AbstractValidator
 
         } else {
 
-            $message = "The max rule cannot be applied to: ".var_export($value, true);
+            $message = sprintf(self::MSG_CANNOT_APPLY_TO, "max", var_export($value, true));
             throw new \InvalidArgumentException($message);
 
+        }
+    }
+
+    /**
+     * Checks if the $value is an alpha-numeric string.
+     *
+     * @param  mixed  $value
+     * @return boolean
+     */
+    public static function isAlphanum($value)
+    {
+        if (!is_string($value)) {
+            return false;
+        } else {
+            return ctype_alnum($value);
+        }
+    }
+
+    /**
+     * Checks if the $value is an alphabet only string.
+     *
+     * @param  mixed  $value
+     * @return boolean
+     */
+    public static function isAlpha($value)
+    {
+        if (!is_string($value)) {
+            return false;
+        } else {
+            return ctype_alpha($value);
         }
     }
 
