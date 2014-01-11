@@ -1,0 +1,17 @@
+{
+    "name": "applistic/validation",
+    "description": "An extensible validation package.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Frederic Filosa",
+            "email": "filosa@applistic.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+    },
+    "autoload": {
+        "psr-0": {"Applistic\\Validation\\": "src/"}
+    }
+}
