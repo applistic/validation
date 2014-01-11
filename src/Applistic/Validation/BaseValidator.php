@@ -45,8 +45,9 @@ class BaseValidator extends AbstractValidator
     {
         if (is_int($value)) {
             return true;
-        } elseif (is_string($value) && preg_match(self::INTEGER_PATTERN, $value)) {
-            return true;
+        } elseif (is_string($value)) {
+            $trimmed = trim($value);
+            return preg_match(self::INTEGER_PATTERN, $trimmed);
         } else {
             return false;
         }
@@ -74,7 +75,8 @@ class BaseValidator extends AbstractValidator
         if (is_numeric($value)) {
             return true;
         } elseif (is_string($value)) {
-            return preg_match(self::NUMERIC_PATTERN, $value);
+            $trimmed = trim($value);
+            return preg_match(self::NUMERIC_PATTERN, $trimmed);
         } else {
             return false;
         }
