@@ -83,7 +83,7 @@ abstract class AbstractValidator implements ValidatorInterface
      * @param  mixed  $arguments Optional arguments.
      * @return boolean
      */
-    public function validate($value, $ruleName, $arguments)
+    public function validate($value, $ruleName, &$arguments)
     {
         if ($this->hasRule($ruleName)) {
 

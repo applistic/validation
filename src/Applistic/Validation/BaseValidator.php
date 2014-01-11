@@ -19,6 +19,10 @@ class BaseValidator extends AbstractValidator
 
 // ===== STATIC PROPERTIES =====================================================
 // ===== STATIC FUNCTIONS ======================================================
+// ===== PROPERTIES ============================================================
+// ===== ACCESSORS =============================================================
+// ===== CONSTRUCTOR ===========================================================
+// ===== PUBLIC METHODS ========================================================
 
     /**
      * Checks if the value is a string.
@@ -26,7 +30,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isString($value)
+    public function isString($value)
     {
         return is_string($value);
     }
@@ -37,7 +41,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isInteger($value)
+    public function isInteger($value)
     {
         if (is_int($value)) {
             return true;
@@ -54,7 +58,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isRealInteger($value)
+    public function isRealInteger($value)
     {
         return is_int($value);
     }
@@ -65,7 +69,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isNumeric($value)
+    public function isNumeric($value)
     {
         if (is_numeric($value)) {
             return true;
@@ -82,7 +86,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isRealNumeric($value)
+    public function isRealNumeric($value)
     {
         return is_numeric($value);
     }
@@ -93,7 +97,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isArray($value)
+    public function isArray($value)
     {
         return is_array($value);
     }
@@ -110,19 +114,21 @@ class BaseValidator extends AbstractValidator
      * @param  $argument  $argument  The minimum requirement (must be castable to double).
      * @return boolean
      */
-    public static function isMin($value, $argument)
+    public function isMin($value, &$argument)
     {
+        $argument = (double)$argument;
+
         if (is_string($value)) {
 
-            return (mb_strlen($value) >= (double)$argument);
+            return (mb_strlen($value) >= $argument);
 
         } elseif (is_numeric($value)) {
 
-            return ($value >= (double)$argument);
+            return ($value >= $argument);
 
         } elseif (is_array($value)) {
 
-            return (count($value) >= (double)$argument);
+            return (count($value) >= $argument);
 
         } else {
 
@@ -144,19 +150,21 @@ class BaseValidator extends AbstractValidator
      * @param  $argument  $argument  The maximum requirement (must be castable to double).
      * @return boolean
      */
-    public static function isMax($value, $argument)
+    public function isMax($value, &$argument)
     {
+        $argument = (double)$argument;
+
         if (is_string($value)) {
 
-            return (mb_strlen($value) <= (double)$argument);
+            return (mb_strlen($value) <= $argument);
 
         } elseif (is_numeric($value)) {
 
-            return ($value <= (double)$argument);
+            return ($value <= $argument);
 
         } elseif (is_array($value)) {
 
-            return (count($value) <= (double)$argument);
+            return (count($value) <= $argument);
 
         } else {
 
@@ -172,7 +180,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isAlphanum($value)
+    public function isAlphanum($value)
     {
         if (!is_string($value)) {
             return false;
@@ -187,7 +195,7 @@ class BaseValidator extends AbstractValidator
      * @param  mixed  $value
      * @return boolean
      */
-    public static function isAlpha($value)
+    public function isAlpha($value)
     {
         if (!is_string($value)) {
             return false;
@@ -196,10 +204,6 @@ class BaseValidator extends AbstractValidator
         }
     }
 
-// ===== PROPERTIES ============================================================
-// ===== ACCESSORS =============================================================
-// ===== CONSTRUCTOR ===========================================================
-// ===== PUBLIC METHODS ========================================================
 // ===== PROTECTED METHODS =====================================================
 // ===== PRIVATE METHODS =======================================================
 }

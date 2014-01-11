@@ -35,7 +35,7 @@ interface ValidatorInterface
      * @param  mixed  $arguments Optional arguments.
      * @return boolean
      */
-    public function validate($value, $ruleName, $arguments);
+    public function validate($value, $ruleName, &$arguments);
 
     /**
      * Sets the next validator.
