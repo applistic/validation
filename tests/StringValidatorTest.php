@@ -37,7 +37,6 @@ class StringValidatorTest extends ApplisticValidationTestCase
 
         $this->assertTrue($success);
         $this->assertTrue($inputs['subscribe'] == "0");
-
     }
 
     public function testStringValidatorIsInteger()
@@ -64,10 +63,6 @@ class StringValidatorTest extends ApplisticValidationTestCase
         $this->assertTrue(StringValidator::isBool(0));
         $this->assertTrue(StringValidator::isBool(true));
         $this->assertTrue(StringValidator::isBool(false));
-        $this->assertTrue(StringValidator::isBool('true'));
-        $this->assertTrue(StringValidator::isBool('TRUE'));
-        $this->assertTrue(StringValidator::isBool('false'));
-        $this->assertTrue(StringValidator::isBool('FALSE'));
         $this->assertTrue(StringValidator::isBool('0'));
         $this->assertTrue(StringValidator::isBool('1'));
 
@@ -75,6 +70,10 @@ class StringValidatorTest extends ApplisticValidationTestCase
         $this->assertFalse(StringValidator::isBool('2'));
         $this->assertFalse(StringValidator::isBool('abcd'));
         $this->assertFalse(StringValidator::isBool('bool'));
+        $this->assertFalse(StringValidator::isBool('true'));
+        $this->assertFalse(StringValidator::isBool('TRUE'));
+        $this->assertFalse(StringValidator::isBool('false'));
+        $this->assertFalse(StringValidator::isBool('FALSE'));
     }
 
     public function testStringValidatorIsMin()

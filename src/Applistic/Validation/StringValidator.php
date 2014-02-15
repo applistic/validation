@@ -59,8 +59,7 @@ class StringValidator extends AbstractValidator
     public static function isBool($v)
     {
         if (is_string($v)) {
-            $items = ",0,1,true,false,TRUE,FALSE,";
-            return (strpos($items, ",".$v.",") !== false);
+            return (($v == "0") || ($v == "1"));
         } elseif (is_int($v)) {
             return (($v == 0) || ($v == 1));
         } else {
