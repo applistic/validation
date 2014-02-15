@@ -75,36 +75,12 @@ class Validation
         return $this->errors;
     }
 
-    /**
-     * Returns the errors corresponding to $valueKey.
-     *
-     * @param  string $valueKey The value's key.
-     * @return null|array
-     */
-    public function valueErrors($valueKey)
-    {
-        if (!is_string($valueKey)) {
-            $message = "\$valueKey must be a string.";
-            throw new \InvalidArgumentException($message);
-        }
-
-        if (is_array($this->errors) && array_key_exists($valueKey, $this->errors)) {
-            return $this->errors[$valueKey];
-        } else {
-            return null;
-        }
-    }
 
 // ===== CONSTRUCTOR ===========================================================
 
-    public function __construct($useReferences = true)
+    public function __construct($validator = "\Applistic\Validation\StringValidator")
     {
-        if (!is_bool($useReferences)) {
-            $useReferences = false;
-        }
-
-        $this->useReferences = $useReferences;
-        $this->validator = new StringValidator();
+        $this->addValidator($validator);
     }
 
 // ===== PUBLIC METHODS ========================================================
@@ -229,7 +205,11 @@ class Validation
                 $validator->setValues($this->values);
             }
 
-            $this->validator->setLastValidator($validator);
+            if (!is_null($this->validator)) {
+                $this->validator->setLastValidator($validator);
+            } else {
+                $this->validator = $validator;
+            }
 
             return $this;
 
@@ -240,6 +220,34 @@ class Validation
             throw new \InvalidArgumentException($message);
 
         }
+    }
+
+    /**
+     * Returns the errors corresponding to $valueKey.
+     *
+     * @param  string $valueKey The value's key.
+     * @return null|array
+     */
+    public function valueErrors($valueKey)
+    {
+        if (is_array($this->errors) && array_key_exists($valueKey, $this->errors)) {
+            return $this->errors[$valueKey];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Checks if a value failed the validation.
+     *
+     * Returns `true` if the value has an error.
+     *
+     * @param  string  $valueKey
+     * @return boolean
+     */
+    public function hasError($valueKey)
+    {
+        return (is_array($this->errors) && array_key_exists($valueKey, $this->errors));
     }
 
 // ===== PROTECTED METHODS =====================================================
