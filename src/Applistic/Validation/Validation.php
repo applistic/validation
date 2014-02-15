@@ -187,7 +187,19 @@ class Validation
             // Parse rules
             foreach ($r as $ruleAndArgument) {
 
-                $this->checkRule($valueKey, $ruleAndArgument);
+                $separatorPos = strpos($ruleAndArgument, self::RULES_ARGUMENTS_SEPARATOR);
+                if ($separatorPos !== false) {
+                    $r = substr($ruleAndArgument, 0, $separatorPos);
+                    $a = substr($ruleAndArgument, ($separatorPos + strlen(self::RULES_ARGUMENTS_SEPARATOR)));
+                } else {
+                    $r = $ruleAndArgument;
+                    $a = null;
+                }
+
+                if (!$this->validator->validate($v, $r, $a)) {
+                    $this->errors[$valueKey] = $r;
+                    break;
+                }
 
             }
 
@@ -224,42 +236,13 @@ class Validation
 
         } else {
 
-            $message  = "\$validator must represent an instance of ";
-            $message .= "Applistic\Validation\ValidatorInterface.";
+            $message  = "\$validator must represent an instance of "
+                      . "Applistic\Validation\ValidatorInterface.";
             throw new \InvalidArgumentException($message);
 
         }
     }
 
 // ===== PROTECTED METHODS =====================================================
-
-    /**
-     * Performs validation of a rule.
-     *
-     * @param  string $valueKey [description]
-     * @param  string $rule     [description]
-     * @return boolean
-     */
-    protected function checkRule($valueKey, $rule)
-    {
-        $separatorPos = strpos($rule, self::RULES_ARGUMENTS_SEPARATOR);
-        if ($separatorPos !== false) {
-            $r = substr($rule, 0, $separatorPos);
-            $a = substr($rule, ($separatorPos + strlen(self::RULES_ARGUMENTS_SEPARATOR)));
-        } else {
-            $r = $rule;
-            $a = null;
-        }
-
-        $v = $this->values[$valueKey];
-
-        if ($this->validator->validate($v, $r, $a)) {
-            return true;
-        } else {
-            $this->errors[$valueKey] = $r;
-            return false;
-        }
-    }
-
 // ===== PRIVATE METHODS =======================================================
 }
