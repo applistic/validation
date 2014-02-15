@@ -13,6 +13,33 @@ class StringValidatorTest extends ApplisticValidationTestCase
 // ===== CONSTRUCTOR ===========================================================
 // ===== PUBLIC METHODS ========================================================
 
+    public function testValidationWithValidStrings()
+    {
+        $genders = ",m,f,";
+
+        $inputs = array(
+            'first_name' => '  Frederic  ',
+            'password'   => 'myPasswd',
+            'gender'     => 'm  ',
+            'age'        => '35',
+        );
+
+        $rules = array(
+            'first_name' => 'required|minlen=1',
+            'password'   => 'required|len=8',
+            'gender'     => 'required|in='.$genders,
+            'age'        => 'required|integer|min=13',
+            'subscribe'  => 'bool|default=0',
+        );
+
+        $validation = new Validation();
+        $success = $validation->validate($inputs, $rules);
+
+        $this->assertTrue($success);
+        $this->assertTrue($inputs['subscribe'] == "0");
+
+    }
+
     public function testStringValidatorIsInteger()
     {
         $this->assertTrue(StringValidator::isInteger(1));

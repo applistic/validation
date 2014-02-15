@@ -14,9 +14,10 @@ class Validation
 
     const RULES_SEPARATOR           = "|";
     const RULES_ARGUMENTS_SEPARATOR = "=";
-    const RULE_EXISTS               = "exists";
+    const RULE_REQUIRED             = "required";
     const RULE_NOT_EMPTY            = "notEmpty";
     const RULE_TRIM                 = "trim";
+    const RULE_NO_TRIM              = "notrim";
 
 // ===== STATIC PROPERTIES =====================================================
 // ===== STATIC FUNCTIONS ======================================================
@@ -43,13 +44,6 @@ class Validation
      */
     protected $errors;
 
-    /**
-     * Defines if $values are kept as references.
-     *
-     * @var boolean
-     */
-    protected $useReferences;
-
 // ===== ACCESSORS =============================================================
 
     /**
@@ -59,11 +53,7 @@ class Validation
      */
     public function setValues(array &$values)
     {
-        if ($this->useReferences) {
-            $this->values =& $values;
-        } else {
-            $this->values = $values;
-        }
+        $this->values =& $values;
     }
 
     /**
@@ -115,7 +105,7 @@ class Validation
         }
 
         $this->useReferences = $useReferences;
-        $this->validator = new BaseValidator();
+        $this->validator = new StringValidator();
     }
 
 // ===== PUBLIC METHODS ========================================================
@@ -133,6 +123,7 @@ class Validation
         $this->validator->setValues($values);
         $this->errors = array();
 
+        // Check other rules
         foreach ($rules as $valueKey => $valueRules) {
 
             if (!is_string($valueKey)) {
@@ -142,13 +133,56 @@ class Validation
 
             $r = explode(self::RULES_SEPARATOR, $valueRules);
 
-            // If the value doesn't exist, no need to check the other rules.
-            if (!$this->checkExists($valueKey, $r)) {
-                continue;
+            // Get the value and check for required, notrim and default
+
+            $v = null;
+
+            $requiredIndex = array_search(self::RULE_REQUIRED, $r);
+            if ($requiredIndex !== false) {
+                unset($r[$requiredIndex]);
             }
 
-            // Trim the strings if necessary
-            $this->checkTrim($valueKey, $r);
+            $default = null;
+            foreach ($r as $key => $value) {
+                $defaultPos = strpos($value, 'default=');
+                if ($defaultPos !== false) {
+                    $default = substr($value, 8);
+                    unset($r[$key]);
+                    break;
+                }
+            }
+
+            if (array_key_exists($valueKey, $this->values)) {
+
+                $v = $this->values[$valueKey];
+
+                // Check no trim
+                $notrimIndex = array_search(self::RULE_NO_TRIM, $r);
+                if ($notrimIndex === false) {
+                    $v = trim($v);
+                    $this->values[$valueKey] = $v;
+                } else {
+                    unset($r[$notrimIndex]);
+                }
+
+            } elseif ($requiredIndex !== false) {
+
+                // Required and no default = error
+                $this->errors[$valueKey] = self::RULE_REQUIRED;
+                continue;
+
+            } elseif (!is_null($default)) {
+
+                // Required but default value = set value
+                $this->values[$valueKey] = $default;
+                continue;
+
+            } else {
+
+                // Not required and no default value = skip
+                continue;
+
+            }
 
             // Parse rules
             foreach ($r as $ruleAndArgument) {
@@ -200,58 +234,6 @@ class Validation
 // ===== PROTECTED METHODS =====================================================
 
     /**
-     * Checks if the value exists.
-     *
-     * @param  string $valueKey The value key.
-     * @param  array  $rules    The rules.
-     * @return boolean
-     */
-    protected function checkExists($valueKey, array &$rules)
-    {
-        $exists = array_key_exists($valueKey, $this->values);
-
-        $keyIndex = array_search(self::RULE_EXISTS, $rules);
-
-        if ($keyIndex !== false) {
-
-            if (!$exists) {
-                $this->errors[$valueKey][] = self::RULE_EXISTS;
-            }
-
-            unset($rules[$keyIndex]);
-
-        }
-
-        return $exists;
-    }
-
-    /**
-     * Trim the strings if necessary.
-     *
-     * @param  string $valueKey The value key.
-     * @param  array  $rules    The rules.
-     * @return boolean
-     */
-    protected function checkTrim($valueKey, array &$rules)
-    {
-        $keyIndex = array_search(self::RULE_TRIM, $rules);
-
-        if ($keyIndex !== false) {
-
-            $value = $this->values[$valueKey];
-
-            if (is_string($value)) {
-
-                $this->values[$valueKey] = trim($value);
-
-            }
-
-            unset($rules[$keyIndex]);
-
-        }
-    }
-
-    /**
      * Performs validation of a rule.
      *
      * @param  string $valueKey [description]
@@ -260,12 +242,16 @@ class Validation
      */
     protected function checkRule($valueKey, $rule)
     {
-        $ruleParts = explode(self::RULES_ARGUMENTS_SEPARATOR, $rule);
-        $count = count($ruleParts);
+        $separatorPos = strpos($rule, self::RULES_ARGUMENTS_SEPARATOR);
+        if ($separatorPos !== false) {
+            $r = substr($rule, 0, $separatorPos);
+            $a = substr($rule, ($separatorPos + strlen(self::RULES_ARGUMENTS_SEPARATOR)));
+        } else {
+            $r = $rule;
+            $a = null;
+        }
 
         $v = $this->values[$valueKey];
-        $r = array_shift($ruleParts);
-        $a = (count($ruleParts) > 0 ? implode(self::RULES_ARGUMENTS_SEPARATOR, $ruleParts) : null);
 
         if ($this->validator->validate($v, $r, $a)) {
             return true;

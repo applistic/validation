@@ -11,6 +11,9 @@ namespace Applistic\Validation;
 abstract class AbstractValidator implements ValidatorInterface
 {
 // ===== CONSTANTS =============================================================
+
+    const METHOD_PREFIX = "is";
+
 // ===== STATIC PROPERTIES =====================================================
 // ===== STATIC FUNCTIONS ======================================================
 // ===== PROPERTIES ============================================================
@@ -165,7 +168,7 @@ abstract class AbstractValidator implements ValidatorInterface
      */
     protected function validationMethod($ruleName)
     {
-        return "is".ucfirst($ruleName);
+        return self::METHOD_PREFIX . ucfirst($ruleName);
     }
 
 // ===== PRIVATE METHODS =======================================================
