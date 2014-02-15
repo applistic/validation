@@ -15,7 +15,6 @@ class Validation
     const RULES_SEPARATOR           = "|";
     const RULES_ARGUMENTS_SEPARATOR = "=";
     const RULE_REQUIRED             = "required";
-    const RULE_NOT_EMPTY            = "notEmpty";
     const RULE_TRIM                 = "trim";
     const RULE_NO_TRIM              = "notrim";
 
